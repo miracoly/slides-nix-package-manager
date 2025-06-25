@@ -1,6 +1,6 @@
 ---
 Author: miracoly
-date: January 19, 2021
+date: June 25, 2025
 ---
 
 # Nix Package Manager
@@ -9,16 +9,38 @@ date: January 19, 2021
 
 ---
 
+## Fork Repo
+
+<https://github.com/miracoly/slides-nix-package-manager>
+
+---
+
+![Fork repo](./img/fork-repo.png)
+
+---
+
+![Create fork](./img/create-fork.png)
+
+---
+
+```sh
+git clone https://github.com/<YOUR_USERNAME>/slides-nix-package-manager
+```
+
+![Clone repo](./img/clone-repo.png) <!-- .element: class="img-small" -->
+
+---
+
 ## Hands On - Installation
 
 ---
 
-### Installiere Nix
+### Install Nix
 
-- gehe zur nix Download Seite:
+- go to nix download page:
   - Linux: <https://nixos.org/download/#nix-install-linux>
   - Windows (WSL2): <https://nixos.org/download/#nix-install-windows>
-- wähle Multi-User installation
+- chose Multi-User installation
 
 ---
 
@@ -26,31 +48,104 @@ date: January 19, 2021
 
 ---
 
-- Script ausführen
-- mit `y` bestätigen
-- bei `sudo` password eingeben
+- execute script
+
+  ```sh
+  sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/...
+  ```
+
+- confirm with `y` when asked
+- enter password if `sudo`
 
 ---
 
-```nix [15-17]
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {inherit system;};
-    in {
-      devShells.default = pkgs.mkShell {
-        buildInputs = [
-          pkgs.nodejs_22
-          pkgs.nodePackages.reveal-md
-        ];
+### Enable Flakes
 
-        shellHook = ''
-          echo -e "hi"
-        '';
-      };
+*/etc/nix/nix.conf*
+
+```env [15-17]
+experimental-features = nix-command flakes
 ```
 
 ---
+
+### Sanity Check 1
+
+```nix [6-11]
+{
+  outputs = { /* ... */ }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      apps.default = {
+        type = "app";
+        program = toString (pkgs.writeShellScript "nix-check" ''
+          echo "✅ Nix flakes are working on ${system}!"
+        '');
+      };
+      devShells.default = pkgs.mkShell {
+        packages = [pkgs.hello];
+        shellHook = ''
+          echo "🛠️  Welcome to the Nix dev shell (${system})"
+          echo "Try running: hello"
+        '';
+      };
+    });
+}
+```
+
+---
+
+- navigate to `examples/sanity-check`
+- run `nix run`
+
+  ```sh
+  $ nix run
+  ✅ Nix flakes are working on x86_64-linux!
+  ```
+
+---
+
+### Sanity Check 2
+
+```nix [12-18]
+{
+  outputs = { /* ... */ }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      apps.default = {
+        type = "app";
+        program = toString (pkgs.writeShellScript "nix-check" ''
+          echo "✅ Nix flakes are working on ${system}!"
+        '');
+      };
+      devShells.default = pkgs.mkShell {
+        packages = [pkgs.hello];
+        shellHook = ''
+          echo "🛠️  Welcome to the Nix dev shell (${system})"
+          echo "Try running: hello"
+        '';
+      };
+    });
+}
+```
+
+---
+
+- run `hello`
+  - expected behavior: `command not found: 'hello'`
+- run `nix develop` to enter the dev shell
+- if you're using `zsh`, run `nix develop -c zsh`
+- run `hello` again
+
+  ```sh
+  $ hello
+  Hello, world!
+  ```
+
+---
+
+- press `Ctrl-D` to exit dev shell
+- run `hello` again
+- as before `command not found: 'hello'`
