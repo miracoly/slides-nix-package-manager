@@ -1,1 +1,1 @@
-# Sldes - nix package manager
+# Slides - nix package manager

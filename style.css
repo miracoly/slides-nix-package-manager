@@ -1,0 +1,20 @@
+.img-small {
+  height: 300px !important;
+}
+
+.reveal pre code {
+  max-height: none;
+  overflow: visible;
+  white-space: pre-wrap; /* allow long lines to wrap */
+  word-break: break-word; /* wrap long words too */
+  font-size: 0.9em; /* shrink slightly for more room */
+}
+
+.reveal .footer-logo {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  width: 3rem;
+  opacity: 0.8;
+  z-index: 10;
+}
