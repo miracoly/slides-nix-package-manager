@@ -1,0 +1,1 @@
+# Sldes - nix package manager
