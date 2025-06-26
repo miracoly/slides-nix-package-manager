@@ -20,5 +20,25 @@
           gnumake
         ];
       };
+
+      packages = with pkgs; rec {
+        default = kboom;
+        kboom = stdenv.mkDerivation {
+          pname = "kboom";
+          version = "0.1.0";
+          src = ./.;
+
+          buildInputs = [gmp];
+          nativeBuildInputs = [gcc gnumake];
+
+          buildPhase = ''
+            make
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp main.out $out/bin/kboom
+          '';
+        };
+      };
     });
 }
