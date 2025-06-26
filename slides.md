@@ -10,6 +10,10 @@ date: June 25, 2025
 
 ---
 
+> Please wait until the end of the presentation to ask questions.
+
+---
+
 The Problem
 
 ## Dependencies <!-- .element: class="fragment" -->
@@ -52,7 +56,6 @@ The Problem
 When you want to present a non‑trivial project you often spend more time on setup than on slides. <!-- .element: class="fragment" -->
 
 - C/C++, Haskell, Go, Python <!-- .element: class="fragment" -->
-- installing dependencies <!-- .element: class="fragment" -->
 - configuring your machine <!-- .element: class="fragment" -->
 
 ---
@@ -67,7 +70,7 @@ To run a project you must install all of its dependencies <!-- .element: class="
 
 ---
 
-When dependencies are added or updated <!-- .element: class="fragment" -->
+When dependencies are added or updated
 
 - you repeat the whole process <!-- .element: class="fragment" -->
 - you might break the pipeline <!-- .element: class="fragment" -->
@@ -101,6 +104,20 @@ Solution
 
 ---
 
+- own language for describing packages
+- many domain specific languages for many use cases <!-- .element: class="fragment" -->
+  - VHDL for hardware
+  - many software languages
+  - Solidity for smart contracts
+- nix language describes how to create derivations <!-- .element: class="fragment" -->
+  - derivations are build instructions
+
+---
+
+Let's skip the *"boring"* theory and dive right into a real world example
+
+---
+
 ## Fork the Repository
 
 ---
@@ -120,6 +137,12 @@ git clone https://github.com/<YOUR_USERNAME>/slides-nix-package-manager
 ```
 
 ![Clone repo](./img/clone-repo.png) <!-- .element: class="img-small" -->
+
+---
+
+### Install IntelliJ Plugin
+
+- [NixIDEA by NixOS](https://plugins.jetbrains.com/plugin/8607-nixidea)
 
 ---
 
@@ -251,102 +274,7 @@ Hello, world!
 
 ---
 
-### Ease of development
-
-- Problem: you need to manually run `nix develop` to enter dev shell
-- Solution: `direnv` and `nix-direnv`
-
----
-
-#### direnv
-
-- shell extension
-- execute scripts when you enter a directory
-  - e.g. load env vars
-
-#### nix-direnv <!-- .element: class="mt-3" -->
-
-- replacement for part of `direnv`
-- automatically enters nix shell
-
----
-
-#### Install direnv
-
-- [direnv for Ubuntu](https://packages.ubuntu.com/search?keywords=direnv&searchon=names&suite=all&section=all)
-
-```
-sudo apt install direnv
-```
-
----
-
-#### Hook direnv into your shell
-
-*$HOME/.bashrc*
-
-```rc
-eval "$(direnv hook bash)"
-```
-
-*$HOME/.zshrc*
-
-```rc
-eval "$(direnv hook zsh)"
-```
-
----
-
-#### Install nix-direnv
-
-```sh
-nix profile install nixpkgs#nix-direnv
-```
-
-#### Add nix-direnv to direnvrc <!-- .element: class="mt-3" -->
-
-*$HOME/.config/direnv/direnvrc*
-
-```rc
-source $HOME/.nix-profile/share/nix-direnv/direnvrc
-```
-
----
-
-#### Use direnv
-
-- close and reopen your terminal
-- run the following command:
-
-```bash
-cd example/sanity-check
-# tell direnv to use flakes
-echo "use flake" >> .envrc
-# allow to automatically enter dev shell for this dir
-direnv allow
-```
-
----
-
-#### Test direnv
-
-- now you should automatically enter the dev shell
-- validate with:
-
-```sh
-# navigate to your home dir
-cd ~
-# navigate to previous dir (examples/sanity-check)
-cd -
-```
-
----
-
 ## Nix by Example
-
----
-
-Let's skip the *"boring"* nix language part and dive right into a real world example
 
 ---
 
@@ -407,7 +335,7 @@ make
 
 Define outputs
 
-```nix [7-11]
+```nix [6-10]
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -481,9 +409,6 @@ make
 
 # run the app
 ./main.out
-
-# automatically enter dev shell
-direnv allow
 ```
 
 ---
@@ -745,10 +670,11 @@ Dependencies
 
 Actual script
 
-```nix [7-14]
+```nix [4, 8-12]
 {
   outputs = {}: {
       packages = with pkgs; rec {
+        kboom = stdenv.mkDerivation {};
         test = pkgs.writeShellApplication {
           name = "kboom-tests";
           runtimeInputs = [...];
@@ -765,19 +691,30 @@ Actual script
 
 ---
 
+Run self-contained tests
+
+```sh
+$ nix run .\#test
+
+Finished in 0.01153 seconds (files took 0.05594 seconds to load)
+6 examples, 0 failures
+```
+
+---
+
 #### Infinite Possibilities
 
-- linting
-  - `gitlint`
-  - `markdownlint`,`clang-tidy`
-  - `hadolint` for Dockerfiles
-- formatting
-  - `prettier`
-  - `dockerfmt`
-  - `ormolu`
-- testing
-  - `playwright`
-  - `gtest`
+- linting <!-- .element: class="fragment" -->
+  - gitlint <!-- .element: class="fragment" -->
+  - markdownlint, clang-tidy <!-- .element: class="fragment" -->
+  - hadolint for Dockerfiles <!-- .element: class="fragment" -->
+- formatting <!-- .element: class="fragment" -->
+  - prettier <!-- .element: class="fragment" -->
+  - dockerfmt <!-- .element: class="fragment" -->
+  - ormolu <!-- .element: class="fragment" -->
+- testing <!-- .element: class="fragment" -->
+  - playwright <!-- .element: class="fragment" -->
+  - gtest <!-- .element: class="fragment" -->
 
 ---
 
@@ -793,7 +730,7 @@ Actual script
 
 ---
 
-GitHub Actions Workflow
+*.github/workflows/validation.yaml*
 
 ```yaml
 name: Validation
@@ -910,6 +847,112 @@ Hello, world!
 
 ```sh
 sudo nix-collect-garbage --delete-older-than 90d
+```
+
+---
+
+#### Jetbrains IDE's and Co
+
+```bash
+# in development shell
+$ nohup idea-ultimate &
+```
+
+---
+
+### Ease of development
+
+- Problem: you need to manually run `nix develop` to enter dev shell
+- Solution: `direnv` and `nix-direnv`
+
+---
+
+#### direnv
+
+- shell extension <!-- .element: class="fragment" -->
+- execute scripts when you enter a directory <!-- .element: class="fragment" -->
+  - e.g. load env vars <!-- .element: class="fragment" -->
+
+#### nix-direnv <!-- .element: class="mt-3 fragment" -->
+
+- replacement for part of direnv <!-- .element: class="fragment" -->
+- automatically enters nix shell <!-- .element: class="fragment" -->
+
+---
+
+#### Install direnv
+
+- [direnv for Ubuntu](https://packages.ubuntu.com/search?keywords=direnv&searchon=names&suite=all&section=all)
+
+```
+sudo apt install direnv
+```
+
+---
+
+#### Hook direnv into your shell
+
+*$HOME/.bashrc*
+
+```rc
+eval "$(direnv hook bash)"
+```
+
+*$HOME/.zshrc*
+
+```rc
+eval "$(direnv hook zsh)"
+```
+
+Which shell do I use?
+
+```bash
+ echo $0
+```
+
+---
+
+#### Install nix-direnv
+
+```sh
+nix profile install nixpkgs#nix-direnv
+```
+
+#### Add nix-direnv to direnvrc <!-- .element: class="mt-3" -->
+
+*$HOME/.config/direnv/direnvrc*
+
+```rc
+source $HOME/.nix-profile/share/nix-direnv/direnvrc
+```
+
+---
+
+#### Use direnv
+
+- close and reopen your terminal
+- run the following command:
+
+```bash
+cd example/sanity-check
+# tell direnv to use flakes
+echo "use flake" >> .envrc
+# allow to automatically enter dev shell for this dir
+direnv allow
+```
+
+---
+
+#### Test direnv
+
+- now you should automatically enter the dev shell
+- validate with:
+
+```sh
+# navigate to your home dir
+cd ~
+# navigate to previous dir (examples/sanity-check)
+cd -
 ```
 
 ---
