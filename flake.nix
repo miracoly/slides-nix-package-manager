@@ -57,7 +57,7 @@
           ];
 
           buildPhase = ''
-            reveal-md slides.md --css style.css --static out
+            reveal-md slides.md --static out
           '';
 
           installPhase = ''
