@@ -55,11 +55,8 @@
 
           text = ''
             set -euo pipefail
-            echo "🏗️  Building kboom …"
-            make
-
             echo "🧪 Executing RSpec …"
-            BIN=./main.out rspec --format documentation ./*.rb
+            BIN=${kboom}/bin/kboom rspec --format documentation ./*.rb
           '';
         };
       };
