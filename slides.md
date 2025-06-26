@@ -3,7 +3,7 @@ Author: miracoly
 date: June 25, 2025
 ---
 
-# Nix Package Manager
+# Hier gibts nix zu sehen
 
 ![Nix Package Manager](https://upload.wikimedia.org/wikipedia/commons/3/35/Nix_Snowflake_Logo.svg) <!-- .element: class="img-small" -->
 
@@ -190,6 +190,22 @@ sudo apt install direnv
 
 ---
 
+#### Hook direnv into your shell
+
+*$HOME/.bashrc*
+
+```rc
+eval "$(direnv hook bash)"
+```
+
+*$HOME/.zshrc*
+
+```rc
+eval "$(direnv hook zsh)"
+```
+
+---
+
 #### Install nix-direnv
 
 ```sh
@@ -231,4 +247,147 @@ direnv allow
 cd ~
 # navigate to previous dir (examples/sanity-check)
 cd -
+```
+
+---
+
+## Nix by Example
+
+---
+
+Let's skip the *"boring"* nix language part and dive right into a real world example
+
+---
+
+### KBOOM
+
+```sh
+$ ./kboom
+kboom — big-integer maths demo (GNU MP powered)
+
+Usage:
+  ./kboom factorial | fa   <n>
+  ./kboom fibonacci | fi   <n>
+  ./kboom sumsquare | s    <n>
+  ./kboom -h | --help
+
+<n> must be a non-negative integer (GMP handles arbitrarily large values).
+```
+
+---
+
+### Preview
+
+---
+
+### Build it locally
+
+```sh  
+cd examples/kboom
+# from now on, we'll do everything in this dir
+make
+```
+
+---
+
+- do you have `make` available?
+- what about lib `gmp` for big ints?
+- do you even have `gcc`?
+
+---
+
+### Create a dev shell
+
+---
+
+#### Define Inputs
+
+*examples/kboom/flake.nix*
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+  };
+}
+```
+
+---
+
+Define outputs
+
+```nix [7-11]
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+  };
+
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    ...
+  }: {};
+}
+```
+
+---
+
+Support each default system
+
+```nix [4, 12-14]
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    ...
+  }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {});
+}
+```
+
+---
+
+Define default dev shell
+
+```nix [10-17]
+{
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    ...
+  }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      devShells.default = pkgs.mkShell {
+        nativeBuildInputs = with pkgs; [
+          gcc
+          gdb
+          gmp
+          gnumake
+        ];
+      };
+    });
+}
+```
+
+---
+
+### Try building again
+
+```sh
+# enter dev shell
+nix develop -c zsh
+# build kboom
+make
+
+# run the app
+./main.out
 ```
