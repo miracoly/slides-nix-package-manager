@@ -391,3 +391,145 @@ make
 # run the app
 ./main.out
 ```
+
+---
+
+### Build with nix
+
+---
+
+Let's create a package
+
+```sh [12 -14]
+{
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    ...
+  }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      devShells.default = pkgs.mkShell {};
+
+      packages = with pkgs; {
+        kboom = stdenv.mkDerivation {};
+      };
+    });
+}
+```
+
+---
+
+Define metadata
+
+```sh [7-9]
+{
+  outputs = {}: {
+      devShells.default = pkgs.mkShell {};
+
+      packages = with pkgs; {
+        kboom = stdenv.mkDerivation {
+          pname = "kboom";
+          version = "0.1.0";
+          src = ./.;
+        };
+      };
+    });
+}
+```
+
+---
+
+Define build dependencies
+
+```sh [11-12]
+{
+  outputs = {}: {
+      devShells.default = pkgs.mkShell {};
+
+      packages = with pkgs; {
+        kboom = stdenv.mkDerivation {
+          pname = "kboom";
+          version = "0.1.0";
+          src = ./.;
+
+          buildInputs = [gmp];
+          nativeBuildInputs = [gcc gnumake];
+        };
+      };
+    });
+}
+```
+
+---
+
+Define build steps
+
+```sh [9-15]
+{
+  outputs = {}: {
+      packages = with pkgs; {
+        kboom = stdenv.mkDerivation {
+          # ...
+          buildInputs = [gmp];
+          nativeBuildInputs = [gcc gnumake];
+
+          buildPhase = ''
+            make
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp main.out $out/bin/kboom
+          '';
+        };
+      };
+    });
+}
+```
+
+---
+
+#### Let's build it
+
+```txt
+# inside examples/kboom
+nix build .\#kboom
+```
+
+```sh
+# inside examples/kboom
+
+# out build output
+ls -la result/bin/kboom
+```
+
+---
+
+Make kboom our default app
+
+```nix [6-9]
+{
+  outputs = {}:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      packages = with pkgs; rec {
+        default = kboom;
+        kboom = stdenv.mkDerivation {};
+      };
+    });
+}
+```
+
+---
+
+Build again and run
+
+```sh
+# inside examples/kboom
+nix build
+
+# run the app
+result/bin/kboom
+```
