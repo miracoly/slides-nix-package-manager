@@ -402,6 +402,9 @@ make
 
 # run the app
 ./main.out
+
+# automatically enter dev shell
+direnv allow
 ```
 
 ---
@@ -671,14 +674,200 @@ Actual script
           runtimeInputs = [...];
           text = ''
             set -euo pipefail
-            echo "Building kboom …"
-            make
-
-            echo "Executing RSpec …"
-            BIN=./main.out rspec --format documentation ./*.rb
+            echo "🧪 Executing RSpec …"
+            BIN=${kboom}/bin/kboom rspec --format documentation ./*.rb
           '';
         };
       };
     });
 }
 ```
+
+---
+
+#### Infinite Possibilities
+
+- linting
+  - `gitlint`
+  - `markdownlint`,`clang-tidy`
+  - `hadolint` for Dockerfiles
+- formatting
+  - `prettier`
+  - `dockerfmt`
+  - `ormolu`
+- testing
+  - `playwright`
+  - `gtest`
+
+---
+
+### Pipeline
+
+- everyone can do everything locally, great!
+- but can we do more?
+- what about building, linting and testing in the pipeline?
+
+---
+
+#### Let's create a simple validation pipeline
+
+---
+
+Github Actions Workflow
+
+```yaml
+name: Validation
+
+on:
+  push:
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+```
+
+---
+
+Checkout and install nix with caching
+
+```yaml [11-17]
+name: Validation
+
+on:
+  push:
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v21
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+---
+
+Show version and check flake
+
+```yaml [10-14]
+jobs:
+  validate:
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@v21
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show nix version
+        run: nix --version
+
+      - name: Check flake
+        run: nix flake check
+```
+
+---
+
+Commit and Push
+
+![CI Flake check](./img/ci-flake-check.png)
+
+---
+
+```yaml [9-15]
+jobs:
+  validate:
+    steps:
+      - name: Show nix version
+        run: nix --version
+      - name: Check flake
+        run: nix flake check
+
+      - name: Build
+        working-directory: examples/kboom
+        run: nix build .#kboom
+
+      - name: Test
+        working-directory: examples/kboom
+        run: nix run .#test
+```
+
+---
+
+Commit and Push
+
+![Ci Green](./img/ci-green.png)
+
+---
+
+### Some additional hints
+
+---
+
+#### Adhoc shell
+
+- sometimes you temporally need a program, but you don't want to install it
+
+```sh
+$ nix shell nixpkgs\#hello-go -c zsh
+$ hello-go
+Hello, world!
+```
+
+---
+
+#### Clean up
+
+- nix stores all derivations under `/nix/store/`
+- one derivation for each version of each program
+- in time, this takes up space
+
+```sh
+sudo nix-collect-garbage --delete-older-than 90d
+```
+
+---
+
+## Where to go from here?
+
+---
+
+- this was just the tip of the iceberg
+- much was omitted:
+  - classic nix vs flakes controversial
+  - nix language specifics
+- the nix rabbit hole is deep, very deep
+- the documentation is ...not so great
+
+---
+
+### Learn more
+
+- [nix.dev](https://nix.dev/)
+- [NixOS & Flakes Book](https://nixos-and-flakes.thiscute.world/)
+- [Videos by Vimjoyer 🎥](https://www.youtube.com/watch?v=9OMDnZWXjn4)
+- ask [our lord and savior 🤖](https://chatgpt.com/)
+
+---
+
+### Takeaways for our company
+
+- start by providing simple dev shells
+- this is especially helpful for part-time projects
+  - e.g. apprentice guide, kb app, wheel of fun
+- write simple shell apps for linting and formatting
+  - use in CI Pipeline
+
+---
+
+## Thank you
+
+---
+
+## Questions?
