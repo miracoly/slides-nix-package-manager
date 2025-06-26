@@ -49,33 +49,37 @@ The Problem
 
 ### Academy Day Presentation
 
-- if you want to present a non-trivial project, you spend a lot of time <!-- .element: class="fragment" -->
-  - C/C++, Haskell, Go, Python
-  - installing dependencies <!-- .element: class="fragment" -->
-  - configuring your machine <!-- .element: class="fragment" -->
+When you want to present a non‑trivial project you often spend more time on setup than on slides. <!-- .element: class="fragment" -->
+
+- C/C++, Haskell, Go, Python <!-- .element: class="fragment" -->
+- installing dependencies <!-- .element: class="fragment" -->
+- configuring your machine <!-- .element: class="fragment" -->
 
 ---
 
 ### Situation
 
-- if you want to run a project, you need to install all dependencies <!-- .element: class="fragment" -->
-  - every developer <!-- .element: class="fragment" -->
-  - for every machines <!-- .element: class="fragment" -->
-  - including CI, which can be pain <!-- .element: class="fragment" -->
+To run a project you must install all of its dependencies <!-- .element: class="fragment" -->
+
+- every developer <!-- .element: class="fragment" -->
+- on every machine <!-- .element: class="fragment" -->
+- including CI - which can be pain <!-- .element: class="fragment" -->
 
 ---
 
-- if dependencies are added or updated
-  - you can repeat this process <!-- .element: class="fragment" -->
-  - you might break the pipeline <!-- .element: class="fragment" -->
-  - it might now work on all machines <!-- .element: class="fragment" -->
+When dependencies are added or updated <!-- .element: class="fragment" -->
+
+- you repeat the whole process <!-- .element: class="fragment" -->
+- you might break the pipeline <!-- .element: class="fragment" -->
+- it still may not work on for all colleagues <!-- .element: class="fragment" -->
 
 ---
 
-- adding dependencies differ between system and dependency
-  - `apt`, `pacman`, `yum`, `brew`
-  - `pip`, `npm`, `yarn`, `gem`, `cargo`, `mvn`
-  - bash-scripts
+Adding dependencies differ per system and language
+
+- `apt`, `pacman`, `yum`, `brew`
+- `pip`, `npm`, `yarn`, `gem`, `cargo`, `mvn`
+- bash-scripts
 
 ---
 
@@ -87,17 +91,17 @@ Solution
 
 ## Nix
 
-- declarative: one file to rule them all <!-- .element: class="fragment" -->
+- declarative - one file to rule them all <!-- .element: class="fragment" -->
   - libs, tools, versions <!-- .element: class="fragment" -->
-- language agnostic: <!-- .element: class="fragment" -->
+- language agnostic <!-- .element: class="fragment" -->
   - C-libs, Python, Go, Haskell, Node-modules <!-- .element: class="fragment" -->
 - multiple versions of the same program? <!-- .element: class="fragment" -->
-  - no problem, nix handles it <!-- .element: class="fragment" -->
-- reproducible <!-- .element: class="fragment" -->
+  - no problem - nix has you covered <!-- .element: class="fragment" -->
+- reproducible builds <!-- .element: class="fragment" -->
 
 ---
 
-## Fork Repo
+## Fork the Repository
 
 ---
 
@@ -125,10 +129,10 @@ git clone https://github.com/<YOUR_USERNAME>/slides-nix-package-manager
 
 ### Install Nix
 
-- go to nix' download page:
+- go to the nix download page:
   - Linux: <https://nixos.org/download/#nix-install-linux>
   - Windows (WSL2): <https://nixos.org/download/#nix-install-windows>
-- chose Multi-User installation
+- choose the multi-user installation
 
 ---
 
@@ -142,8 +146,8 @@ git clone https://github.com/<YOUR_USERNAME>/slides-nix-package-manager
 sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/...
 ```
 
-- confirm with `y` when asked
-- enter password if `sudo`
+- confirm with `y` when prompted
+- enter password if `sudo` asks
 
 ---
 
@@ -224,7 +228,7 @@ $ nix run
 - run `hello`
   - expected behavior: `command not found: 'hello'`
 - run `nix develop` to enter the dev shell
-- if you're using `zsh`, run `nix develop -c zsh`
+  - for `zsh`, run `nix develop -c zsh`
 - run `hello` again
 
 ```sh
@@ -242,9 +246,8 @@ Hello, world!
 
 ### What we've achieved
 
-- nix installed
-- build every project with nix
-- one custom dev shell for every project
+- nix installed ✅
+- we’re now ready to build with Nix and set up development environments ✅
 
 ---
 
@@ -258,13 +261,13 @@ Hello, world!
 #### direnv
 
 - shell extension
-- run script on directory enter
+- execute scripts when you enter a directory
   - e.g. load env vars
 
 #### nix-direnv <!-- .element: class="mt-3" -->
 
 - replacement for part of `direnv`
-- allows to automatically enter nix shell
+- automatically enters nix shell
 
 ---
 
@@ -691,7 +694,8 @@ rspec ./*.rb
 ---
 
 - great for local development, but requires `main.out` to be present
-- what about a self-contained way of running e2e tests?
+- what about a self-contained way of running e2e tests? <!-- .element: class="fragment" -->
+  - necessary for CI <!-- .element: class="fragment" -->
 
 ---
 
@@ -779,9 +783,9 @@ Actual script
 
 ### Pipeline
 
-- everyone can do everything locally, great!
-- but can we do more?
-- what about building, linting and testing in the pipeline?
+- everyone can do everything locally — great! <!-- .element: class="fragment" -->
+- but can we go further? <!-- .element: class="fragment" -->
+- what about building, linting, and testing in the pipeline? <!-- .element: class="fragment" -->
 
 ---
 
@@ -789,7 +793,7 @@ Actual script
 
 ---
 
-Github Actions Workflow
+GitHub Actions Workflow
 
 ```yaml
 name: Validation
@@ -888,7 +892,7 @@ Commit and Push
 
 #### Adhoc shell
 
-- sometimes you temporally need a program, but you don't want to install it
+- sometimes you temporally need a program, but don't want to install it
 
 ```sh
 $ nix shell nixpkgs\#hello-go -c zsh
@@ -900,9 +904,9 @@ Hello, world!
 
 #### Clean up
 
-- nix stores all derivations under `/nix/store/`
-- one derivation for each version of each program
-- in time, this takes up space
+- nix stores all derivations in `/nix/store/`
+- one derivation per version for each program
+- over time, this can consume a lot of disk space
 
 ```sh
 sudo nix-collect-garbage --delete-older-than 90d
@@ -927,11 +931,11 @@ log_format = "-"
 ---
 
 - this was just the tip of the iceberg
-- much was omitted:
-  - classic nix vs flakes controversial
-  - nix language specifics
-- the nix rabbit hole is deep, very deep
-- the documentation is ...not so great
+- many things were left out: <!-- .element: class="fragment" -->
+  - the classic nix vs. flakes debate <!-- .element: class="fragment" -->
+  - nix language quirks and specifics <!-- .element: class="fragment" -->
+- the nix rabbit hole is deep — very deep <!-- .element: class="fragment" -->
+- and the documentation... well, it’s not exactly great <!-- .element: class="fragment" -->
 
 ---
 
@@ -941,16 +945,17 @@ log_format = "-"
 - [NixOS & Flakes Book](https://nixos-and-flakes.thiscute.world/)
 - [Videos by Vimjoyer 🎥](https://www.youtube.com/watch?v=9OMDnZWXjn4)
 - ask [our lord and savior 🤖](https://chatgpt.com/)
+- NixOS as Linux Distribution
 
 ---
 
 ### Takeaways for our company
 
-- start by providing simple dev shells
-- this is especially helpful for part-time projects
-  - e.g. apprentice guide, kb app, wheel of fun
-- write simple shell apps for linting and formatting
-  - use in CI Pipeline
+- start by providing simple dev shells <!-- .element: class="fragment" -->
+- this is especially helpful for part-time projects <!-- .element: class="fragment" -->
+  - e.g. apprentice guide, kb app, wheel of fun <!-- .element: class="fragment" -->
+- write simple shell apps for linting and formatting <!-- .element: class="fragment" -->
+  - use in CI Pipeline <!-- .element: class="fragment" -->
 
 ---
 
