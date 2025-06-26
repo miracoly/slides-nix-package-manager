@@ -608,3 +608,77 @@ make
 rspec ./*.rb
 
 ```
+
+---
+
+- great for local development, but requires `main.out` to be present
+- what about a self-contained way of running e2e tests?
+
+---
+
+#### Shell Application
+
+```nix [7-9]
+{
+  outputs = {}: {
+      packages = with pkgs; rec {
+        default = kboom;
+        kboom = stdenv.mkDerivation {};
+
+        test = pkgs.writeShellApplication {
+          name = "kboom-tests";
+        };
+      };
+    });
+}
+```
+
+---
+
+Dependencies
+
+```nix [7-14]
+{
+  outputs = {}: {
+      packages = with pkgs; rec {
+        test = pkgs.writeShellApplication {
+          name = "kboom-tests";
+
+          runtimeInputs = with pkgs; let
+            rubyWithRSpec = pkgs.ruby.withPackages (ps: [ps.rspec]);
+          in [
+            gcc
+            gnumake
+            gmp
+            rubyWithRSpec
+          ];
+        };
+      };
+    });
+}
+```
+
+---
+
+Actual script
+
+```nix [7-14]
+{
+  outputs = {}: {
+      packages = with pkgs; rec {
+        test = pkgs.writeShellApplication {
+          name = "kboom-tests";
+          runtimeInputs = [...];
+          text = ''
+            set -euo pipefail
+            echo "Building kboom …"
+            make
+
+            echo "Executing RSpec …"
+            BIN=./main.out rspec --format documentation ./*.rb
+          '';
+        };
+      };
+    });
+}
+```
