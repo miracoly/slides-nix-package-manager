@@ -18,6 +18,7 @@
           gdb
           gmp
           gnumake
+          rubyPackages.rspec
         ];
       };
 
