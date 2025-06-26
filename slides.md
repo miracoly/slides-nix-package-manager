@@ -6,6 +6,94 @@ date: June 25, 2025
 # Hier gibts nix zu sehen
 
 ![Nix Package Manager](https://upload.wikimedia.org/wikipedia/commons/3/35/Nix_Snowflake_Logo.svg) <!-- .element: class="img-small" -->
+> Laptop needed by everyone
+
+---
+
+The Problem
+
+## Dependencies <!-- .element: class="fragment" -->
+
+- libraries <!-- .element: class="fragment" -->
+- tools to build software <!-- .element: class="fragment" -->
+- tooling for local development <!-- .element: class="fragment" -->
+
+---
+
+### UDP Gütersloh
+
+- k8s, helm, fluxcd, minikube, k9s <!-- .element: class="fragment" -->
+- bruno, gradle, kotlin, jq, openssl, sops <!-- .element: class="fragment" -->
+- telepresence in specific version <!-- .element: class="fragment" -->
+- playwright with browsers <!-- .element: class="fragment" -->
+- many env vars for e2e tests <!-- .element: class="fragment" -->
+
+---
+
+### Control Center
+
+- terraform, yarn, socat, lens <!-- .element: class="fragment" -->
+- azurecli in specific version <!-- .element: class="fragment" -->
+- gauge, taiko <!-- .element: class="fragment" -->
+- cypress with browsers <!-- .element: class="fragment" -->
+
+---
+
+### Apprentice Program
+
+- asciidoctor-pdf <!-- .element: class="fragment" -->
+- gitlint, pnpm <!-- .element: class="fragment" -->
+- ruby <!-- .element: class="fragment" -->
+
+---
+
+### Academy Day Presentation
+
+- if you want to present a non-trivial project, you spend a lot of time <!-- .element: class="fragment" -->
+  - C/C++, Haskell, Go, Python
+  - installing dependencies <!-- .element: class="fragment" -->
+  - configuring your machine <!-- .element: class="fragment" -->
+
+---
+
+### Situation
+
+- if you want to run a project, you need to install all dependencies <!-- .element: class="fragment" -->
+  - every developer <!-- .element: class="fragment" -->
+  - for every machines <!-- .element: class="fragment" -->
+  - including CI, which can be pain <!-- .element: class="fragment" -->
+
+---
+
+- if dependencies are added or updated
+  - you can repeat this process <!-- .element: class="fragment" -->
+  - you might break the pipeline <!-- .element: class="fragment" -->
+  - it might now work on all machines <!-- .element: class="fragment" -->
+
+---
+
+- adding dependencies differ between system and dependency
+  - `apt`, `pacman`, `yum`, `brew`
+  - `pip`, `npm`, `yarn`, `gem`, `cargo`, `mvn`
+  - bash-scripts
+
+---
+
+Solution
+
+![Nix logo](https://upload.wikimedia.org/wikipedia/commons/3/35/Nix_Snowflake_Logo.svg) <!-- .element: class="img-small fragment" -->
+
+---
+
+## Nix
+
+- declarative: one file to rule them all <!-- .element: class="fragment" -->
+  - libs, tools, versions <!-- .element: class="fragment" -->
+- language agnostic: <!-- .element: class="fragment" -->
+  - C-libs, Python, Go, Haskell, Node-modules <!-- .element: class="fragment" -->
+- multiple versions of the same program? <!-- .element: class="fragment" -->
+  - no problem, nix handles it <!-- .element: class="fragment" -->
+- reproducible <!-- .element: class="fragment" -->
 
 ---
 
