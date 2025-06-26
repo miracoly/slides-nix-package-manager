@@ -394,6 +394,22 @@ make
 
 ---
 
+### Where do these packages come from?
+
+---
+
+- <https://search.nixos.org/packages>
+
+![Search Nix Packages](./img/nix-pkgs-search.png)
+
+---
+
+- <https://github.com/NixOS/nixpkgs>
+
+![gnumake Derivation](./img/gnumake-drv.png)
+
+---
+
 ### Build with nix
 
 ---
@@ -530,6 +546,53 @@ Build again and run
 # inside examples/kboom
 nix build
 
-# run the app
+# run the app, either
 result/bin/kboom
+# or
+nix run
+```
+
+---
+
+### E2E tests
+
+- `examples/kboom/kboom.spec.rb`
+- executes the app and expects correct `stdout`
+- dependencies: `rspec`
+
+---
+
+#### dev shell
+
+```nix [12]
+{
+  outputs = { }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      devShells.default = pkgs.mkShell {
+        nativeBuildInputs = with pkgs; [
+          gcc
+          gdb
+          gmp
+          gnumake
+          rubyPackages.rspec
+        ];
+      };
+    });
+}
+```
+
+---
+
+#### run tests from shell
+
+```sh
+# inside examples/kboom
+
+# main.out is expected
+make
+# run tests
+rspec ./*.rb
+
 ```
