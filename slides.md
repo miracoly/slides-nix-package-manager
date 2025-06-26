@@ -206,6 +206,18 @@ eval "$(direnv hook zsh)"
 
 ---
 
+#### Silent direnv output
+
+*$HOME/.config/direnv/direnv.toml*
+
+```toml
+[global]
+log_filter = "^$"
+log_format = "-"
+```
+
+---
+
 #### Install nix-direnv
 
 ```sh
